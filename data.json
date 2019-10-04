@@ -1,0 +1,17 @@
+{
+  "Students": {
+    "Orlov Volodya": {
+      "Login": "1",
+      "Passwd": "2",
+      "Course": 2,
+      "Group": "IP-82",
+      "Subjects": "['Math', 'Programing']",
+      "Marks": {
+        "Math": 82,
+        "Programing": 90
+      },
+      "Age": 17,
+      "Budget": "False"
+    }
+  }
+}
