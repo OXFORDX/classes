@@ -13,5 +13,8 @@
       "Age": 17,
       "Budget": "False"
     }
+  },
+  "TODO":{
+    "Create admin, teacher, dean data in this file. Use the class tables": "OK?"
   }
 }
