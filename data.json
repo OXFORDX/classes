@@ -14,6 +14,22 @@
       "Budget": "False"
     }
   },
+  "Admins": {
+    "Login": "0",
+    "Passwd" : "00"
+  },
+  "Teachers": {
+    "Ivan Ivanov":
+    {
+      "Login": "3",
+      "Passwd": "33",
+      "Subject": "Math"
+    }
+  },
+  "Dean": {
+    "Login": "4",
+    "Passwd": "44"
+  },
   "TODO":{
     "Create admin, teacher, dean data in this file. Use the class tables": "OK?"
   }
