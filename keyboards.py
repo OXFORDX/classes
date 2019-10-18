@@ -10,8 +10,9 @@ def start(message):
     bot.send_message(message.chat.id, 'Привіт!', reply_markup=keys())
 
 
-@bot.message_handler(content_types=['text'])
+@bot.message_handler(func=lambda message: True if message.text == 'Hello' else False)
 def mess(message):
+    print(message.text)
     if message.text == 'Кабінет студента':
         bot.send_message(message.chat.id, 'Кабінет студента', reply_markup=std_keys())
 
