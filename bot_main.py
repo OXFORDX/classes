@@ -3,7 +3,10 @@ import os
 
 
 class Database:
-    def __init__(self):
+    def __init__(self, flname):
+        rand = flname.split(' ')
+        self.fname = rand[0]
+        self.lname = rand[1]
         self.connection = sqlite3.connect("database.db")
         self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor()
@@ -23,6 +26,10 @@ class Database:
         self.connection.close()
 
     def add_std(self):
+        self.cursor.execute(f"""CREATE TABLE std{self.__getLastID()}(
+            subject text,
+            mark integer
+        )""")
         firstname = str(input('FName: '))
         lastname = str(input('LName: '))
         age = int(input('Age: '))
@@ -45,16 +52,28 @@ class Database:
                 })
         self.connection.commit()
 
-    def __read_db(self):
-        self.cursor.execute("SELECT * FROM students WHERE id=:id", {'id': 1})
+    def add_marks(self, array):
+        with self.connection:
+            self.cursor.execute(f"""INSERT INTO std{self.read_id} VALUES (:subject, :mark)""",
+                                {'subject': 'Математика', 'mark': 0})
+
+    def read_id(self):
+        self.cursor.execute(f"""SELECT * FROM students WHERE firstname=:firstname AND lastname=:lastname""",
+                            {'firstname': self.fname, 'lastname': self.lname})
+        obj = self.cursor.fetchone()
+        return obj['id']
+
+    def read_db(self):
+        self.cursor.execute("SELECT * FROM students")
         return self.cursor.fetchall()
 
     def __getLastID(self):
         last_id = 0
-        for i in self.__read_db():
+        for i in self.read_db():
             last_id = i['id']
         return last_id + 1
 
 
-db = Database()
-db.add_std()
+subj = ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування']
+db = Database('Бебех Олександр')
+db.add_marks(subj)
