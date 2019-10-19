@@ -1,5 +1,6 @@
 import sqlite3
 import random
+import pandas as pd
 
 
 class Database:
@@ -70,8 +71,21 @@ class Database:
         obj = self.cursor.fetchone()
         return obj['id']
 
+    def excelDB(self):
+        self.cursor.execute(f"SELECT * FROM std{self.getID()}")
+        table = self.cursor.fetchall()
+        subj_arr = []
+        mark_arr = []
+        for row in table:
+            subj_arr.append(row['subject'])
+            mark_arr.append(row['mark'])
+        df = pd.DataFrame({'subject': subj_arr, 'mark': mark_arr})
+        writer = pd.ExcelWriter('subjmark.xlsx', engine='xlsxwriter')
+        df.to_excel(writer, sheet_name=f"{self.fname} {self.lname}")
+        writer.save()
+
     def __readDB(self):
-        self.cursor.execute("SELECT * FROM students")
+        self.cursor.execute("SEpd.LECT * FROM students")
         return self.cursor.fetchall()
 
     def __getLastID(self):
@@ -86,9 +100,16 @@ def generateMarks(db, subj):
         db.changeMark(i, random.randint(60, 100))
 
 
-subjects = ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування']
+# subjects = ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування']
 db = Database('Ямковий Андрій')
-db.changeMark('Математика', 30)
-for i in subjects:
-    db.addSubject(i)
-generateMarks(db, subjects)
+db.excelDB()
+# db.changeMark('Математика', 30)
+# # for i in subjects:
+# #    db.addSubject(i)
+# # generateMarks(db, subjects)
+# df = pd.DataFrame({'subjects': ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування'],
+#                    'marks': [90, 90, 90, 90, 90]})
+# print(df)
+# writer = pd.ExcelWriter('example.xlsx', engine='xlsxwriter')
+# df.to_excel(writer, sheet_name='Sheet1')
+# writer.save()
