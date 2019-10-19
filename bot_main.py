@@ -1,5 +1,5 @@
 import sqlite3
-import os
+import random
 
 
 class Database:
@@ -25,11 +25,10 @@ class Database:
     def __del__(self):
         self.connection.close()
 
-    def add_std(self):
+    def addStd(self):
         self.cursor.execute(f"""CREATE TABLE std{self.__getLastID()}(
             subject text,
-            mark integer
-        )""")
+            mark integer)""")
         firstname = str(input('FName: '))
         lastname = str(input('LName: '))
         age = int(input('Age: '))
@@ -52,28 +51,44 @@ class Database:
                 })
         self.connection.commit()
 
-    def add_marks(self, array):
+    def addSubject(self, subject):
         with self.connection:
-            self.cursor.execute(f"""INSERT INTO std{self.read_id} VALUES (:subject, :mark)""",
-                                {'subject': 'Математика', 'mark': 0})
+            self.cursor.execute(f"INSERT INTO std{self.getID()} VALUES (:subject, :mark)",
+                                {'subject': subject, 'mark': 0})
 
-    def read_id(self):
-        self.cursor.execute(f"""SELECT * FROM students WHERE firstname=:firstname AND lastname=:lastname""",
+    def changeMark(self, subject, mark):
+        mark = int(mark)
+        with self.connection:
+            self.cursor.execute(f"UPDATE std{self.getID()} SET mark=:mark WHERE subject=:subject", {
+                'mark': mark,
+                'subject': subject
+            })
+
+    def getID(self):
+        self.cursor.execute(f"""SELECT id FROM students WHERE firstname=:firstname AND lastname=:lastname""",
                             {'firstname': self.fname, 'lastname': self.lname})
         obj = self.cursor.fetchone()
         return obj['id']
 
-    def read_db(self):
+    def __readDB(self):
         self.cursor.execute("SELECT * FROM students")
         return self.cursor.fetchall()
 
     def __getLastID(self):
         last_id = 0
-        for i in self.read_db():
+        for i in self.__readDB():
             last_id = i['id']
         return last_id + 1
 
 
-subj = ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування']
-db = Database('Бебех Олександр')
-db.add_marks(subj)
+def generateMarks(db, subj):
+    for i in subj:
+        db.changeMark(i, random.randint(60, 100))
+
+
+subjects = ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування']
+db = Database('Ямковий Андрій')
+db.changeMark('Математика', 30)
+for i in subjects:
+    db.addSubject(i)
+generateMarks(db, subjects)
