@@ -10,14 +10,21 @@ def start(message):
     bot.send_message(message.chat.id, 'Привіт!', reply_markup=keys())
 
 
-@bot.message_handler(func=lambda message: True if message.text == 'Hello' else False)
+@bot.message_handler(content_types=['document'])
+def handle_docs(message):
+    print("Reaction")
+
+
+@bot.message_handler(content_types=['text'])
 def mess(message):
+    #  handle previous message
     print(message.text)
     if message.text == 'Кабінет студента':
         bot.send_message(message.chat.id, 'Кабінет студента', reply_markup=std_keys())
 
     if message.text == 'Кабінет викладача':
-        bot.send_message(message.chat.id, 'Кабінет студента', reply_markup=lectr_keys())
+        print(message.text)
+        bot.send_message(message.chat.id, 'Кабінет викладача', reply_markup=lectr_keys())
 
     if message.text == 'Отримати довідку':
         bot.send_message(message.chat.id, " efe ", reply_markup=dov_keys())
@@ -37,6 +44,9 @@ def mess(message):
 
     if message.text == 'Назад':
         bot.send_message(message.chat.id, 'Меню', reply_markup=keys())
+
+    if message.text == 'Отримати оцінки':
+        bot.send_message(message.chat.id, 'тут должен быть документ')
 
 
 def keys():
@@ -61,7 +71,8 @@ def lectr_keys():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton('Добавити оцінку')
     btn2 = types.KeyboardButton('Назад')
-    markup.add(btn1, btn2)
+    btn3 = types.KeyboardButton('Отримати оцінки')
+    markup.add(btn1, btn3, btn2)
     return markup
 
 
