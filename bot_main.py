@@ -1,6 +1,8 @@
 import sqlite3
 import random
 import pandas as pd
+from pandas import ExcelWriter
+from pandas import ExcelFile
 
 
 class Database:
@@ -24,6 +26,7 @@ class Database:
         #
 
     def __del__(self):
+        self.connection.commit()
         self.connection.close()
 
     def addStd(self):
@@ -50,42 +53,69 @@ class Database:
                     'course': course,
                     'pay': pay
                 })
-        self.connection.commit()
 
     def addSubject(self, subject):
         with self.connection:
             self.cursor.execute(f"INSERT INTO std{self.getID()} VALUES (:subject, :mark)",
                                 {'subject': subject, 'mark': 0})
 
-    def changeMark(self, subject, mark):
+    def changeMark(self, std, mark, subj):
         mark = int(mark)
-        with self.connection:
-            self.cursor.execute(f"UPDATE std{self.getID()} SET mark=:mark WHERE subject=:subject", {
-                'mark': mark,
-                'subject': subject
-            })
+        print(f'{std} {mark} {subj}')
+        self.cursor.execute(f"UPDATE std{self.getID(std)} SET mark=:mark WHERE subject=:subject", {
+            'mark': mark,
+            'subject': subj
+        })
 
-    def getID(self):
-        self.cursor.execute(f"""SELECT id FROM students WHERE firstname=:firstname AND lastname=:lastname""",
-                            {'firstname': self.fname, 'lastname': self.lname})
-        obj = self.cursor.fetchone()
-        return obj['id']
+    def getID(self, std=None):
+        if not std:
+            self.cursor.execute(f"""SELECT id FROM students WHERE firstname=:firstname AND lastname=:lastname""",
+                                {'firstname': self.fname, 'lastname': self.lname})
+            obj = self.cursor.fetchone()
+            return obj['id']
+        else:
+            std = std.split(' ')
+            fname = std[0]
+            lname = std[1]
+            self.cursor.execute(f"""SELECT id FROM students WHERE firstname=:firstname AND lastname=:lastname""",
+                                {'firstname': fname, 'lastname': lname})
+            obj = self.cursor.fetchone()
+            return obj['id']
 
-    def excelDB(self):
-        self.cursor.execute(f"SELECT * FROM std{self.getID()}")
-        table = self.cursor.fetchall()
-        subj_arr = []
-        mark_arr = []
-        for row in table:
-            subj_arr.append(row['subject'])
-            mark_arr.append(row['mark'])
-        df = pd.DataFrame({'subject': subj_arr, 'mark': mark_arr})
-        writer = pd.ExcelWriter('subjmark.xlsx', engine='xlsxwriter')
-        df.to_excel(writer, sheet_name=f"{self.fname} {self.lname}")
+    def getGroupIDs(self, group):  # {1: std1, 2: std2, 3: std3}
+        try:
+            id_dict = {}
+            self.cursor.execute(f"SELECT * FROM students WHERE groups=:groups", {'groups': group})
+            obj = self.cursor.fetchall()
+            for i in obj:
+                id_dict[i['id']] = f"{i['firstname']} {i['lastname']}"
+            print(id_dict)
+            return id_dict
+        except Exception as e:
+            print('Invalid group')
+
+    def excelDBwrite(self, group, subject):
+        marks = []
+        std = []
+        for k, v in self.getGroupIDs(group).items():
+            std.append(v)
+            for j in self.cursor.execute(f"SELECT * FROM std{k} WHERE subject=:subj", {'subj': subject}):
+                marks.append(j['mark'])
+        df = pd.DataFrame({'Студент': std, 'Оцінка': marks})
+        df = df[['Студент', 'Оцінка']].sort_values(by='Студент')
+        df.index = range(1, len(std) + 1)
+        print(df)
+        writer = pd.ExcelWriter(f'{subject}.xlsx', engine='xlsxwriter')
+        df.to_excel(writer, sheet_name=group)
         writer.save()
 
+    def excelDBread(self, group, subject):
+        df = pd.read_excel(f'{subject}.xlsx', sheet_name=group)
+        for i in df.index:
+            self.changeMark(df['Студент'][i], df['Оцінка'][i], subject)
+
     def __readDB(self):
-        self.cursor.execute("SEpd.LECT * FROM students")
+        self.cursor.execute("SELECT * FROM students")
         return self.cursor.fetchall()
 
     def __getLastID(self):
@@ -102,7 +132,9 @@ def generateMarks(db, subj):
 
 # subjects = ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування']
 db = Database('Ямковий Андрій')
-db.excelDB()
+# db.excelDB()
+
+db.excelDBread('IP-82', 'КПЗ')
 # db.changeMark('Математика', 30)
 # # for i in subjects:
 # #    db.addSubject(i)
