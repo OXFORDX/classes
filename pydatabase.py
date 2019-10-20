@@ -1,8 +1,11 @@
 import sqlite3
 import random
 import pandas as pd
+import os
 from pandas import ExcelWriter
 from pandas import ExcelFile
+
+root = os.getcwd()
 
 
 class Database:
@@ -94,22 +97,35 @@ class Database:
         except Exception as e:
             print('Invalid group')
 
-    def excelDBwrite(self, group, subject):
-        marks = []
-        std = []
-        for k, v in self.getGroupIDs(group).items():
-            std.append(v)
-            for j in self.cursor.execute(f"SELECT * FROM std{k} WHERE subject=:subj", {'subj': subject}):
-                marks.append(j['mark'])
-        df = pd.DataFrame({'Студент': std, 'Оцінка': marks})
-        df = df[['Студент', 'Оцінка']].sort_values(by='Студент')
-        df.index = range(1, len(std) + 1)
-        print(df)
-        writer = pd.ExcelWriter(f'{subject}.xlsx', engine='xlsxwriter')
-        df.to_excel(writer, sheet_name=group)
-        writer.save()
+    def excelDBwrite(self, group=None, subject=None):
+        if group and subject:
+            marks = []
+            std = []
+            for k, v in self.getGroupIDs(group).items():
+                std.append(v)
+                for j in self.cursor.execute(f"SELECT * FROM std{k} WHERE subject=:subj", {'subj': subject}):
+                    marks.append(j['mark'])
+            df = pd.DataFrame({'Студент': std, 'Оцінка': marks})
+            df = df[['Студент', 'Оцінка']].sort_values(by='Студент')
+            df.index = range(1, len(std) + 1)
+            print(df)
+            writer = pd.ExcelWriter(f'{subject}.xlsx', engine='xlsxwriter')
+            df.to_excel(writer, sheet_name=group)
+            if group not in os.listdir('temp'):
+                os.mkdir(f'temp/{group}')
+            os.chdir(f'temp/{group}')
+            writer.save()
+            os.chdir(root)
+        else:
+            subj = []
+            mark = []
+            for i in self.cursor.execute(f"SELECT * FROM std{self.getID()}"):
+                subj.append(i['subject'])
+                mark.append(i['mark'])
+            df = pd.DataFrame({'Предмет': subj, 'Оцінка': mark}, index=[i for i in range(1, len(mark) + 1)])
+            return repr(df)
 
-    def excelDBread(self, group, subject):
+    def excelDBread(self, group, subject, filename):
         df = pd.read_excel(f'{subject}.xlsx', sheet_name=group)
         for i in df.index:
             self.changeMark(df['Студент'][i], df['Оцінка'][i], subject)
@@ -130,18 +146,30 @@ def generateMarks(db, subj):
         db.changeMark(i, random.randint(60, 100))
 
 
-# subjects = ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування']
-db = Database('Ямковий Андрій')
-# db.excelDB()
+def getNamesOfSTD():
+    connection = sqlite3.connect("database.db")
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+    std = []
+    for i in cursor.execute(f"SELECT * FROM students"):
+        std.append(f"{i['firstname']} {i['lastname']}")
+    return std
 
-db.excelDBread('IP-82', 'КПЗ')
-# db.changeMark('Математика', 30)
-# # for i in subjects:
-# #    db.addSubject(i)
-# # generateMarks(db, subjects)
-# df = pd.DataFrame({'subjects': ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування'],
-#                    'marks': [90, 90, 90, 90, 90]})
-# print(df)
-# writer = pd.ExcelWriter('example.xlsx', engine='xlsxwriter')
-# df.to_excel(writer, sheet_name='Sheet1')
-# writer.save()
+
+if __name__ == '__main__':
+    # subjects = ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування']
+    db = Database('Ямковий Андрій')
+    # db.excelDB()
+    db.excelDBwrite('IP-82', 'КПЗ')
+    db.excelDBwrite()
+    print(getNamesOfSTD())
+    # db.changeMark('Математика', 30)
+    # # for i in subjects:
+    # #    db.addSubject(i)
+    # # generateMarks(db, subjects)
+    # df = pd.DataFrame({'subjects': ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування'],
+    #                    'marks': [90, 90, 90, 90, 90]})
+    # print(df)
+    # writer = pd.ExcelWriter('example.xlsx', engine='xlsxwriter')
+    # df.to_excel(writer, sheet_name='Sheet1')
+    # writer.save()
