@@ -6,14 +6,14 @@ from pandas import ExcelWriter
 from pandas import ExcelFile
 
 root = os.getcwd()
-
+se
 
 class Database:
     def __init__(self, flname):
         rand = flname.split(' ')
         self.fname = rand[0]
         self.lname = rand[1]
-        self.connection = sqlite3.connect("database.db")
+        self.connection = sqlite3.connect("Database/students.db")
         self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor()
 
@@ -43,6 +43,8 @@ class Database:
         groups = str(input('Group: '))
         course = int(input('Course: '))
         pay = int(input('Pay: '))
+        login = str(input('Login: '))
+        passwd = str(input('Passwd: '))
         with self.connection:
             self.cursor.execute(
                 "INSERT INTO students VALUES (:id, :firstname, :lastname, :age, :faculty, :groups, :course, :pay)",
@@ -147,22 +149,23 @@ def generateMarks(db, subj):
 
 
 def getNamesOfSTD():
-    connection = sqlite3.connect("database.db")
+    connection = sqlite3.connect("Database/students.db")
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
     std = []
     for i in cursor.execute(f"SELECT * FROM students"):
         std.append(f"{i['firstname']} {i['lastname']}")
+    connection.close()
     return std
 
 
 if __name__ == '__main__':
     # subjects = ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування']
-    db = Database('Ямковий Андрій')
-    # db.excelDB()
-    db.excelDBwrite('IP-82', 'КПЗ')
-    db.excelDBwrite()
-    print(getNamesOfSTD())
+    # db = Database('Ямковий Андрій')
+    # # db.excelDB()
+    # db.excelDBwrite('IP-82', 'КПЗ')
+    # db.excelDBwrite()
+    # print(getNamesOfSTD())
     # db.changeMark('Математика', 30)
     # # for i in subjects:
     # #    db.addSubject(i)
@@ -173,3 +176,4 @@ if __name__ == '__main__':
     # writer = pd.ExcelWriter('example.xlsx', engine='xlsxwriter')
     # df.to_excel(writer, sheet_name='Sheet1')
     # writer.save()
+    conn = sqlite3.connect('')

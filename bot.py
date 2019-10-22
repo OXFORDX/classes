@@ -3,12 +3,10 @@ from telebot import types
 import random
 import os
 import pydatabase
+import teleuser
 
 token = '958037621:AAFB5ZOCMgVKo_7pQbifvqnQm0Oc4GxMthU'
 bot = telebot.TeleBot(token)
-stan = None
-std = None
-db = None
 
 
 def create_file(file):
@@ -18,48 +16,51 @@ def create_file(file):
 
 @bot.message_handler(commands=['start'])
 def start(message):
+    user = teleuser.Session(message.chat.id)
     bot.send_message(message.chat.id, 'Привіт!', reply_markup=keys())
+    user.writestate(message.text)
 
 
 @bot.message_handler(content_types=['document'])
 def handle_docs(message):
     file_info = bot.get_file(message.document.file_id)
-    print(file_info.file_path)
     downloaded_file = bot.download_file(file_info.file_path)
     src = message.document.file_name
     file = src.split('.')[0] + str(random.randint(0, 10)) + '.xlsx'
-    os.chdir(f'')
     create_file(file)
-    with open(file, 'wb') as new_file:
+    with open(message.chat.id, 'wb') as new_file:
         new_file.write(downloaded_file)
 
 
 @bot.message_handler(content_types=['text'])
 def mess(message):
-    global stan
-    global std
-    global db
-    prev_msg = message.text
     stds = pydatabase.getNamesOfSTD()
-    if message.text in stds:
-        std = pydatabase.Database(repr(message.text))
-        stan = 0
+    user = teleuser.Session(message.chat.id)
+    if user.data["prev_msg"] and user.data["prev_msg"] in 'Кабінет студента' and message.text in stds:
+        bot.send_message(message.chat.id, 'Введіть пароль: ')
+        user.writename(message.text)
+
+    if user.data['prev_msg'] == user.data['name']:
+        bot.send_message(message.chat.id, f'Вітаємо, {message.text}', reply_markup=std_keys())
+        user.writestate(0)
 
     if message.text == 'Кабінет студента':
-        bot.send_message(message.chat.id, 'Кабінет студента', reply_markup=std_keys())
+        user.writestate(0)
         bot.send_message(message.chat.id, "Введіть ваше ім'я")
-
+    #
     if message.text == 'Кабінет викладача':
-        stan = 1
         print(message.text)
         bot.send_message(message.chat.id, 'Кабінет викладача', reply_markup=lectr_keys())
-
+    #
     if message.text == 'Назад':
-        stan = None
+        user.writestate(None)
         bot.send_message(message.chat.id, 'Меню', reply_markup=keys())
-
-    if message.text == 'Отримати оцінки' and stan == 0:
+    #
+    if message.text == 'Отримати оцінки' and user.data['state'] == 0:
+        std = pydatabase.Database(user.data['name'])
         bot.send_message(message.chat.id, std.excelDBwrite())
+    user.writemess(message.text)
+    user.close()
 
 
 def keys():
