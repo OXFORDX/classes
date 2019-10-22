@@ -17,6 +17,7 @@ class Database:
         self.connection = sqlite3.connect("Database/students.db")
         self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor()
+        self.subjects = ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування']
 
         # cursor.execute("""CREATE TABLE students(
         #             id integer,
@@ -34,9 +35,10 @@ class Database:
         self.connection.close()
 
     def addStd(self):
-        self.cursor.execute(f"""CREATE TABLE std{self.__getLastID()}(
-            subject text,
-            mark integer)""")
+        with self.connection:
+            self.cursor.execute(f"""CREATE TABLE std{self.__getLastID()}(
+                subject text,
+                mark integer)""")
         firstname = str(input('FName: '))
         lastname = str(input('LName: '))
         age = int(input('Age: '))
@@ -69,6 +71,11 @@ class Database:
                 'login': login,
                 'password': passwd
             })
+
+        with self.connection:
+            for i in self.subjects:
+                self.cursor.execute(f"INSERT INTO std{id} VALUES (:subject, :mark)",
+                                    {'subject': i, 'mark': 0})
 
     def addAdmin(self):
         login = str(input('Login: '))
@@ -129,10 +136,10 @@ class Database:
                 std.append(v)
                 for j in self.cursor.execute(f"SELECT * FROM std{k} WHERE subject=:subj", {'subj': subject}):
                     marks.append(j['mark'])
+            print(marks, std)
             df = pd.DataFrame({'Студент': std, 'Оцінка': marks})
             df = df[['Студент', 'Оцінка']].sort_values(by='Студент')
             df.index = range(1, len(std) + 1)
-            print(df)
             writer = pd.ExcelWriter(f'{subject}.xlsx', engine='xlsxwriter')
             df.to_excel(writer, sheet_name=group)
             if group not in os.listdir('temp'):
@@ -140,6 +147,7 @@ class Database:
             os.chdir(f'temp/{group}')
             writer.save()
             os.chdir(root)
+            return df
         else:
             subj = []
             mark = []
@@ -181,19 +189,41 @@ def getNamesOfSTD():
     return std
 
 
-def getpasswd():
+def getNamesOfTeach():
+    connection = sqlite3.connect("Database/teachers.db")
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+    teach = []
+    for i in cursor.execute(f'SELECT * FROM teachers'):
+        teach.append(f"{i['firstname']} {i['lastname']}")
+    connection.close()
+    return teach
+
+
+def getpasswdstd():
     conn = sqlite3.connect("Database/passwd.db")
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     data = {}
     std = getNamesOfSTD()
+    print(std)
     for i, j in enumerate(cursor.execute(f"SELECT * FROM passwd")):
         data[std[i]] = j['password']
     return data
 
 
+def getpasswdteach():
+    conn = sqlite3.connect("Database/teachers.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    data = {}
+    teach = getNamesOfTeach()
+    for i, j in enumerate(cursor.execute(f"SELECT * FROM teachers")):
+        data[teach[i]] = j['passwd']
+    return data
+
+
 if __name__ == '__main__':
-    # subjects = ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування']
     # db = Database('Ямковий Андрій')
     # # db.excelDB()
     # db.excelDBwrite('IP-82', 'КПЗ')
@@ -217,4 +247,6 @@ if __name__ == '__main__':
     #     password text
     # )""")
     # pass
-    print(getpasswd())
+    db = Database()
+    print(getNamesOfTeach())
+    print(getpasswdteach())
