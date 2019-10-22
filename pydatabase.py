@@ -2,8 +2,7 @@ import sqlite3
 import random
 import pandas as pd
 import os
-from pandas import ExcelWriter
-from pandas import ExcelFile
+import xlsxwriter
 
 root = os.getcwd()
 
@@ -35,32 +34,31 @@ class Database:
         self.connection.close()
 
     def addStd(self):
+        df = pd.read_excel('temp/tempxlsx.xlsx', sheet_name='std')
+        ara = []
+        for i in df['Дані']:
+            if type(i) is float:
+                ara.append(None)
+            else:
+                ara.append(i)
+
         with self.connection:
             self.cursor.execute(f"""CREATE TABLE std{self.__getLastID()}(
                 subject text,
                 mark integer)""")
-        firstname = str(input('FName: '))
-        lastname = str(input('LName: '))
-        age = int(input('Age: '))
-        faculty = str(input('Faculty: '))
-        groups = str(input('Group: '))
-        course = int(input('Course: '))
-        pay = int(input('Pay: '))
-        login = str(input('Login: '))
-        passwd = str(input('Passwd: '))
         id = self.__getLastID()
         with self.connection:
             self.cursor.execute(
                 "INSERT INTO students VALUES (:id, :firstname, :lastname, :age, :faculty, :groups, :course, :pay)",
                 {
                     'id': id,
-                    'firstname': firstname,
-                    'lastname': lastname,
-                    'age': age,
-                    'faculty': faculty,
-                    'groups': groups,
-                    'course': course,
-                    'pay': pay
+                    'firstname': ara[0],
+                    'lastname': ara[1],
+                    'age': ara[2],
+                    'faculty': ara[3],
+                    'groups': ara[4],
+                    'course': ara[5],
+                    'pay': ara[6]
                 })
         conn = sqlite3.connect('Database/passwd.db')
         conn.row_factory = sqlite3.Row
@@ -68,8 +66,8 @@ class Database:
         with conn:
             cursor.execute("INSERT INTO passwd VALUES (:id, :login, :password)", {
                 'id': id,
-                'login': login,
-                'password': passwd
+                'login': ara[7],
+                'password': ara[8]
             })
 
         with self.connection:
@@ -95,7 +93,6 @@ class Database:
 
     def changeMark(self, std, mark, subj):
         mark = int(mark)
-        print(f'{std} {mark} {subj}')
         self.cursor.execute(f"UPDATE std{self.getID(std)} SET mark=:mark WHERE subject=:subject", {
             'mark': mark,
             'subject': subj
@@ -123,7 +120,6 @@ class Database:
             obj = self.cursor.fetchall()
             for i in obj:
                 id_dict[i['id']] = f"{i['firstname']} {i['lastname']}"
-            print(id_dict)
             return id_dict
         except Exception as e:
             print('Invalid group')
@@ -136,7 +132,6 @@ class Database:
                 std.append(v)
                 for j in self.cursor.execute(f"SELECT * FROM std{k} WHERE subject=:subj", {'subj': subject}):
                     marks.append(j['mark'])
-            print(marks, std)
             df = pd.DataFrame({'Студент': std, 'Оцінка': marks})
             df = df[['Студент', 'Оцінка']].sort_values(by='Студент')
             df.index = range(1, len(std) + 1)
@@ -157,10 +152,47 @@ class Database:
             df = pd.DataFrame({'Предмет': subj, 'Оцінка': mark}, index=[i for i in range(1, len(mark) + 1)])
             return repr(df)
 
-    def excelDBread(self, group, subject, filename):
-        df = pd.read_excel(f'{subject}.xlsx', sheet_name=group)
+    def StdInfo(self, std):
+        big_str = ''
+        data1 = ['Фамілія', "Ім'я", 'Вік', 'Факультет', 'Група', 'Курс', 'Контракт']
+        data2 = []
+        self.cursor.execute(f"SELECT * FROM students WHERE firstname=:firstname", {'firstname': std.split(' ')[0]})
+        main = self.cursor.fetchone()
+        for i in main:
+            data2.append(i)
+        data2 = data2[1:]
+        for i in range(len(data2)):
+            big_str += f'{data1[i]}: {data2[i]}\n'
+        return big_str
+
+    def excelDBread(self, group, subject):
+        df = pd.read_excel(f'temp/{group}/{subject}.xlsx', sheet_name=group)
         for i in df.index:
             self.changeMark(df['Студент'][i], df['Оцінка'][i], subject)
+
+    def del_std(self, std):
+        std1 = std.split(' ')
+        id = self.getID(std)
+        with self.connection:
+            self.cursor.execute("DELETE FROM students WHERE firstname=:firstname AND lastname=:lastname", {
+                'firstname': std1[0],
+                'lastname': std1[1]
+            })
+            self.cursor.execute(f"DROP TABLE std{id}")
+
+        connection = sqlite3.connect("Database/passwd.db")
+        connection.row_factory = sqlite3.Row
+        cursor = connection.cursor()
+        with connection:
+            cursor.execute("DELETE FROM passwd WHERE id=:id", {'id': id})
+
+    def changeCourse(self, std, course):
+        self.cursor.execute(f"UPDATE students SET course=:course WHERE firstname=:firstname",
+                            {'course': course, 'firstname': std.split(' ')[0]})
+
+    def changeGroup(self, std, group):
+        self.cursor.execute(f"UPDATE students SET group=:group WHERE firstname=:firstname",
+                            {'group': group, 'firstname': std.split(' ')[0]})
 
     def __readDB(self):
         self.cursor.execute("SELECT * FROM students")
@@ -206,7 +238,6 @@ def getpasswdstd():
     cursor = conn.cursor()
     data = {}
     std = getNamesOfSTD()
-    print(std)
     for i, j in enumerate(cursor.execute(f"SELECT * FROM passwd")):
         data[std[i]] = j['password']
     return data
@@ -248,5 +279,4 @@ if __name__ == '__main__':
     # )""")
     # pass
     db = Database()
-    print(getNamesOfTeach())
-    print(getpasswdteach())
+    db.del_std('Троцюк Павло')

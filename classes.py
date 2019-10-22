@@ -1,5 +1,6 @@
 import pydatabase
 import sqlite3
+import xlsxwriter
 
 
 class Stude:
@@ -36,5 +37,9 @@ class Teacher:
         print(self.data.excelDBwrite(group, self.subject))
 
 
-x = Teacher('Вітковська Ірина')
-x.changeMarks('IP-82')
+class Dean:
+    def __init__(self):
+        db = pydatabase.Database()
+
+
+x = Dean()

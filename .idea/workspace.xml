@@ -2,13 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="57a6a2d6-f457-4ba5-897a-ff8297e2152c" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/classes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Database/passwd.db" beforeDir="false" afterPath="$PROJECT_DIR$/Database/passwd.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Database/students.db" beforeDir="false" afterPath="$PROJECT_DIR$/Database/students.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sertificates/dov1.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sertificates/dov2.jpg" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pydatabase.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydatabase.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/temp/IP-82/КПЗ.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/temp/IP-82/КПЗ.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/temp/Sessions/370091393.json" beforeDir="false" afterPath="$PROJECT_DIR$/temp/Sessions/370091393.json" afterDir="false" />
@@ -233,7 +231,7 @@
       <workItem from="1571654899316" duration="2053000" />
       <workItem from="1571696923239" duration="5306000" />
       <workItem from="1571702406072" duration="36000" />
-      <workItem from="1571702472617" duration="12001000" />
+      <workItem from="1571702472617" duration="24061000" />
     </task>
     <task id="LOCAL-00001" summary="Added SQLite3 support">
       <created>1571426415362</created>
@@ -270,7 +268,14 @@
       <option name="project" value="LOCAL" />
       <updated>1571708211708</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Added excel support for telegram.">
+      <created>1571716776989</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1571716776989</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -295,18 +300,19 @@
     <MESSAGE value="Need to handle previous message" />
     <MESSAGE value="Added previous message handler, state handler." />
     <MESSAGE value="Added telegram auth." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added telegram auth." />
+    <MESSAGE value="Added excel support for telegram." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added excel support for telegram." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/SQLBOT$keyboards.coverage" NAME="keyboards Coverage Results" MODIFIED="1569685547014" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/SQLBOT$bot_main.coverage" NAME="bot_main Coverage Results" MODIFIED="1570048689379" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/classes$keyboards.coverage" NAME="keyboards Coverage Results" MODIFIED="1571585799222" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/classes$pydatabase.coverage" NAME="pydatabase Coverage Results" MODIFIED="1571715207614" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes$pydatabase.coverage" NAME="pydatabase Coverage Results" MODIFIED="1571726021079" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/classes$bot_main.coverage" NAME="bot_main Coverage Results" MODIFIED="1571584673152" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/classes$scratch.coverage" NAME="scratch Coverage Results" MODIFIED="1570532440872" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
     <SUITE FILE_PATH="coverage/classes$scratch_1.coverage" NAME="scratch_1 Coverage Results" MODIFIED="1571491508401" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
-    <SUITE FILE_PATH="coverage/classes$classes.coverage" NAME="classes Coverage Results" MODIFIED="1571714652825" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes$classes.coverage" NAME="classes Coverage Results" MODIFIED="1571719587255" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/classes$teleuser.coverage" NAME="teleuser Coverage Results" MODIFIED="1571702168692" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/classes$bot.coverage" NAME="bot Coverage Results" MODIFIED="1571716705638" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/classes$bot.coverage" NAME="bot Coverage Results" MODIFIED="1571728451751" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
