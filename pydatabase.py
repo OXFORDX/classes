@@ -6,13 +6,14 @@ from pandas import ExcelWriter
 from pandas import ExcelFile
 
 root = os.getcwd()
-se
+
 
 class Database:
-    def __init__(self, flname):
-        rand = flname.split(' ')
-        self.fname = rand[0]
-        self.lname = rand[1]
+    def __init__(self, flname=None):
+        if flname:
+            rand = flname.split(' ')
+            self.fname = rand[0]
+            self.lname = rand[1]
         self.connection = sqlite3.connect("Database/students.db")
         self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor()
@@ -45,11 +46,12 @@ class Database:
         pay = int(input('Pay: '))
         login = str(input('Login: '))
         passwd = str(input('Passwd: '))
+        id = self.__getLastID()
         with self.connection:
             self.cursor.execute(
                 "INSERT INTO students VALUES (:id, :firstname, :lastname, :age, :faculty, :groups, :course, :pay)",
                 {
-                    'id': self.__getLastID(),
+                    'id': id,
                     'firstname': firstname,
                     'lastname': lastname,
                     'age': age,
@@ -58,6 +60,26 @@ class Database:
                     'course': course,
                     'pay': pay
                 })
+        conn = sqlite3.connect('Database/passwd.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        with conn:
+            cursor.execute("INSERT INTO passwd VALUES (:id, :login, :password)", {
+                'id': id,
+                'login': login,
+                'password': passwd
+            })
+
+    def addAdmin(self):
+        login = str(input('Login: '))
+        passwd = str(input('Passwd: '))
+        conn = sqlite3.connect('Database/admins.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        with conn:
+            cursor.execute("INSERT INTO admins VALUES (:login, :password)", {
+                'login': login,
+                'password': passwd})
 
     def addSubject(self, subject):
         with self.connection:
@@ -159,6 +181,17 @@ def getNamesOfSTD():
     return std
 
 
+def getpasswd():
+    conn = sqlite3.connect("Database/passwd.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    data = {}
+    std = getNamesOfSTD()
+    for i, j in enumerate(cursor.execute(f"SELECT * FROM passwd")):
+        data[std[i]] = j['password']
+    return data
+
+
 if __name__ == '__main__':
     # subjects = ['Математика', 'КПЗ', 'Психологія', 'Філософія', 'Веб-програмування']
     # db = Database('Ямковий Андрій')
@@ -176,4 +209,12 @@ if __name__ == '__main__':
     # writer = pd.ExcelWriter('example.xlsx', engine='xlsxwriter')
     # df.to_excel(writer, sheet_name='Sheet1')
     # writer.save()
-    conn = sqlite3.connect('')
+    # conn = sqlite3.connect('Database/admins.db')
+    # conn.row_factory = sqlite3.Row
+    # cursor = conn.cursor()
+    # cursor.execute("""CREATE TABLE admins(
+    #     login text,
+    #     password text
+    # )""")
+    # pass
+    print(getpasswd())

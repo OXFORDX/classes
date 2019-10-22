@@ -36,21 +36,32 @@ def handle_docs(message):
 def mess(message):
     stds = pydatabase.getNamesOfSTD()
     user = teleuser.Session(message.chat.id)
-    if user.data["prev_msg"] and user.data["prev_msg"] in 'Кабінет студента' and message.text in stds:
-        bot.send_message(message.chat.id, 'Введіть пароль: ')
-        user.writename(message.text)
-
-    if user.data['prev_msg'] == user.data['name']:
-        bot.send_message(message.chat.id, f'Вітаємо, {message.text}', reply_markup=std_keys())
-        user.writestate(0)
+    if user.data["prev_msg"] and user.data["prev_msg"] in 'Кабінет студента':
+        mess = message.text.split(',')
+        data = pydatabase.getpasswd()
+        print(mess)
+        if mess[0] in stds and mess[1] == data[mess[0]]:
+            bot.send_message(message.chat.id, f'Вітаємо, {mess[0]}', reply_markup=std_keys())
+            user.writestate(0)
+            user.writename(mess[0])
+        else:
+            bot.send_message(message.chat.id, "Невірне ім'я чи пароль")
 
     if message.text == 'Кабінет студента':
         user.writestate(0)
-        bot.send_message(message.chat.id, "Введіть ваше ім'я")
+        bot.send_message(message.chat.id, """Введіть ваше ім'я і пароль у форматі: \n"Фамілія Ім'я,пароль" """)
     #
     if message.text == 'Кабінет викладача':
         print(message.text)
         bot.send_message(message.chat.id, 'Кабінет викладача', reply_markup=lectr_keys())
+
+    if message.text == 'Отримати довідку':
+        if user.data['state'] == 0:
+            foto = open('Sertificates/dov2.jpg', 'rb')
+            bot.send_photo(message.chat.id, foto)
+        else:
+            foto = open('Sertificates/dov1.jpg', 'rb')
+            bot.send_photo(message.chat.id, foto)
     #
     if message.text == 'Назад':
         user.writestate(None)
@@ -76,8 +87,9 @@ def keys():
 def std_keys():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton('Отримати оцінки')
-    btn2 = types.KeyboardButton('Назад')
-    markup.add(btn1, btn2)
+    btn2 = types.KeyboardButton('Отримати довідку')
+    btn3 = types.KeyboardButton('Назад')
+    markup.add(btn1, btn2, btn3)
     return markup
 
 
